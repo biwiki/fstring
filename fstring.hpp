@@ -11,7 +11,6 @@
 #pragma once
 #include <cstddef>      // std::size_t
 #include <string>       // std::string
-#include <stdexcept>    // std::runtime_error
 #include <ctype.h>      // isdigit
 #include <utility>
 #include <vector>       // std::vector
@@ -34,7 +33,7 @@ private:
 
 protected:
     // find paddings in string and handle it
-    void padding() noexcept(false)
+    void padding() noexcept
     {
         auto src_len = src.length();
         // handle
@@ -65,7 +64,11 @@ protected:
                 auto n = src[pos] - '0';
 
                 // if the first number is zero
-                if(!n && !padd) throw std::runtime_error("Padding can not be zero OR start with zero");
+                if(!n && !padd)
+                {
+                    src = "";
+                    return;
+                }
 
                 // calc padding
                 padd *= 10; padd += n;
@@ -85,7 +88,11 @@ protected:
             {
                 std::size_t end;
                 // find ".%" : the end of section
-                if ((end = src.find(".%", pos)) == src.npos) throw std::runtime_error("smart padding must start by %. and ended by .%");
+                if ((end = src.find(".%", pos)) == src.npos)
+                {
+                    src = "";
+                    return;
+                }
                 poss.push_back(padd_vec{tmp, end - 4, padd});
 
                 src.erase(end, 2);        // erase ".%"
@@ -106,7 +113,7 @@ protected:
     }
 
     // apply smart padding
-    void apply()
+    void apply() noexcept
     {
         for (auto i = poss.begin(); i < poss.end(); i++)
         {
@@ -137,7 +144,7 @@ protected:
 
     // replace "{}" by values
     template<typename T>
-    void variables(T&& arg)
+    void variables(T&& arg) noexcept
     {
         //  to avoid error(out of range exception)
         if(lpos == src.npos) return;
