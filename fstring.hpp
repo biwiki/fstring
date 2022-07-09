@@ -30,6 +30,7 @@ private:
     std::string src;
     std::size_t lpos = 0; // last postion for variables() function
     std::vector<padd_vec> poss; // to remember positions before formatting in padding()
+    char pad_char;
 
 protected:
     // find paddings in string and handle it
@@ -96,7 +97,7 @@ protected:
                 // erase %n
                 src.erase(tmp, digits + 1);
                 // add spaces(padding)
-                src.insert(tmp, padd, ' ');
+                src.insert(tmp, padd, pad_char);
 
                 // update position to avoid searching in spaces area
                 pos += padd - (digits + 1);
@@ -119,7 +120,7 @@ protected:
                 std::size_t padd = i->value - length;
 
                 // add spaces(padding)
-                src.insert(i->end, padd, ' ');
+                src.insert(i->end, padd, pad_char);
 
                 // now we updated the string value, so the length is updated
                 // so  we need to update the upcoming positions with: +=padd
@@ -177,7 +178,14 @@ protected:
 public:
     // constructor
     template<typename... T>
-    fstring(std::string _src, T&& ...args) : src{std::move(_src)}
+    fstring(std::string _src, T&& ...args) : fstring(' ', _src, args...)
+    {
+    }
+
+    template<typename... T>
+    fstring(char _pad_char, std::string _src, T&& ...args) :
+        pad_char(_pad_char),
+        src{std::move(_src)}
     {
         // performance improvement, see: https://cplusplus.com/reference/vector/vector/reserve/
         poss.reserve(  5);
