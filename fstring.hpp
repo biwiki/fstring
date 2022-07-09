@@ -17,22 +17,21 @@
 #include <vector>       // std::vector
 #include <algorithm>    // std::find
 
-// to save padding begin,end positions and value
-struct padd_vec
-{
-    std::size_t begin, end, value;
-};
-
 
 class fstring
 {
-    private:
+private:
+    // to save padding begin,end positions and value
+    struct padd_vec
+    {
+        std::size_t begin, end, value;
+    };
+
     std::string src;
     std::size_t lpos = 0; // last postion for variables() function
     std::vector<padd_vec> poss; // to remember positions before formatting in padding()
 
-    protected:
-
+protected:
     // find paddings in string and handle it
     void padding() noexcept(false)
     {
@@ -175,8 +174,7 @@ class fstring
         }
     }
 
-    public:
-
+public:
     // constructor
     template<typename... T>
     fstring(std::string _src, T&& ...args) : src{std::move(_src)}
