@@ -10,8 +10,9 @@
 
 #pragma once
 #include <cstddef>      // std::size_t
+#include <stdexcept>
 #include <string>       // std::string
-#include <ctype.h>      // isdigit
+#include <cctype>       // isdigit
 #include <utility>
 #include <vector>       // std::vector
 #include <algorithm>    // std::find
@@ -53,30 +54,21 @@ protected:
             // increase position to get the next character after "%."
             if(smart_padding) pos ++;
 
-            // find padding
-            uint32_t padd  = 0;    // to store padding value
-            uint8_t digits = 0;    // to store digits count
-
-            while(pos < src.length() && isdigit(src[pos]))
+            decltype(pos) pos_start = pos;
+            while (pos < src.length() && isdigit(src[pos])) { pos++; }
+            uint8_t digits = pos - pos_start;
+            uint32_t padd = 0;
+            try
             {
-                // get the number
-                auto n = src[pos] - '0';
-
-                // if the first number is zero
-                if(!n && !padd)
-                {
-                    src = "";
-                    return;
-                }
-
-                // calc padding
-                padd *= 10; padd += n;
-
-                // increase position to get the next character
-                pos ++;
-
-                // increase count of digits
-                digits ++;
+                padd = std::stoi(src.substr(pos_start, digits));
+            }
+            catch(std::invalid_argument const& ex)
+            {
+                continue;
+            }
+            catch(std::out_of_range const& ex)
+            {
+                continue;
             }
 
             // if padding is zero so there is nothing to do so skip it !
@@ -102,10 +94,10 @@ protected:
             {
                 // erase %n
                 src.erase(tmp, digits + 1);
-                // add spaces(padding)
+                // add padding
                 src.insert(tmp, padd, pad_char);
 
-                // update position to avoid searching in spaces area
+                // update position to avoid searching in padding area
                 pos += padd - (digits + 1);
             }
         }
@@ -119,13 +111,13 @@ protected:
             // get length of section
             std::size_t length = i->end - i->begin;
 
-            // if length < padding value so there are a space to add padding
+            // if length < padding value so there are a padding char to add padding
             if(i->value > length)
             {
-                // calc padding value: padding - length = the rest of space
+                // calc padding value: padding - length = the rest of padding
                 std::size_t padd = i->value - length;
 
-                // add spaces(padding)
+                // add padding
                 src.insert(i->end, padd, pad_char);
 
                 // now we updated the string value, so the length is updated
