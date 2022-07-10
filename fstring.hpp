@@ -35,9 +35,8 @@ protected:
     // find paddings in string and handle it
     void padding() noexcept
     {
-        auto src_len = src.length();
         // handle
-        for (std::size_t pos = 0; pos < src_len; pos++)
+        for (std::size_t pos = 0; pos < src.length(); pos++)
         {
             // find '%'
             if((pos = src.find('%', pos)) == src.npos) break;
@@ -46,7 +45,7 @@ protected:
             auto tmp = pos ++;  // save begin position
 
             // what if the character "%" is last character in the string ?
-            if(pos >= src_len) break;
+            if(pos >= src.length()) break;
 
             // find '.' : for smart padding (padding - length of section)
             bool smart_padding = src[pos] == '.';
@@ -58,7 +57,7 @@ protected:
             uint32_t padd  = 0;    // to store padding value
             uint8_t digits = 0;    // to store digits count
 
-            while(pos < src_len && isdigit(src[pos]))
+            while(pos < src.length() && isdigit(src[pos]))
             {
                 // get the number
                 auto n = src[pos] - '0';
